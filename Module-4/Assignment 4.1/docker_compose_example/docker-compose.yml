@@ -1,3 +1,5 @@
+
+
 services:
   db:
     image: mariadb:10.6.4-focal
@@ -12,27 +14,39 @@ services:
       - MYSQL_PASSWORD=wordpress
     expose:
       - 3306
+    networks:
+      - network-same
+  
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 80:80
+    environment:
+      - PMA_ARBITRARY= 1
+      - PMA_HOST= db
+    networks:
+      - network-same
+
   wordpress:
     image: wordpress:latest
     volumes:
       - wp_data:/var/www/html
     ports:
-      - 80:80
+      - 8880:8880
     restart: always
     environment:
       - WORDPRESS_DB_HOST=db
       - WORDPRESS_DB_USER=wordpress
       - WORDPRESS_DB_PASSWORD=wordpress
       - WORDPRESS_DB_NAME=wordpress
+    networks:
+      - network-same
 
-  phpmyadmin:
-    image: phpmyadmin
-    restart: always
-    ports:
-      - 82:82
-    environment:
-      - PMA_ARBITRARY= 1
-      - PMA_HOST= db
 volumes:
   db_data:
   wp_data:
+
+networks:
+  network-same:
+    driver: bridge
